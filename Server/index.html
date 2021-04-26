@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script src="wasm_exec.js"></script>
+		<script>
+			const go = new Go();
+			WebAssembly.instantiateStreaming(fetch("lib.wasm"), go.importObject).then((result) => {
+				go.run(result.instance);
+			});
+			
+			let openFile = async function(event) {
+                let input = event.target;
+
+                let reader = new FileReader();
+                reader.onload = function(){
+                    let bytes = new Uint8Array(reader.result);
+
+                    let result = convertToGray(bytes);
+
+                    let b = new Blob([result], {'type': 'image/jpeg'});
+                    document.getElementById('dst').src = URL.createObjectURL(b);
+                };
+                reader.readAsArrayBuffer(input.files[0]);
+            };
+		</script>
+	</head>
+	<body>
+		<input type='file' accept='image/jpeg' onchange='openFile(event)'><br>
+        <img id="dst" />
+	</body>
+</html>
